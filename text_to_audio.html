@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Audio Converter</title>
+    <link rel="stylesheet" href="/static/preloader.css">
+    <link rel="stylesheet" href="/static/text_to_audio.css">
+    <link rel="shortcut icon" type="image/jpg" href="/static/bootstrap_images/favicon.png" />
+
+    <style>
+        /* Style for the loading spinner */
+        #loading-spinner {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 9999;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loading-spinner img {
+            width: 24rem;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="preloader"></div>
+    <br>
+    <header>
+        <p class="centered-text">Text to Audio Converter</p>
+    </header>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner">
+        <img src="/static/page_reloader.gif" alt="Loading..."> <!-- Replace with the path to your GIF -->
+    </div>
+
+    <div class="wrapper">
+        <form action="/text_to_audio" method="post">
+            <label for="text">Your Statements : </label><br>
+            <textarea name="text" placeholder="Enter text here..." id="text"></textarea><br>
+            <div class="btnArea">
+                <button type="submit" id="generateBtn">Audio</button>
+                <button type="reset" id="resetBtn">Reset</button><br>
+            </div>
+        </form>
+
+        <div id="player">
+            <audio controls id="audio">
+                <source src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+    <script>
+        const form = document.querySelector('form');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const text = document.getElementById('text').value;
+            
+            // Show the loading spinner
+            loadingSpinner.style.display = 'flex';
+
+            fetch('/text_to_audio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'text=' + encodeURIComponent(text)
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const audio = document.getElementById('audio');
+                    audio.src = url;
+                    // Hide the loading spinner
+                    loadingSpinner.style.display = 'none';
+                });
+        });
+    </script>
+
+    <script>
+        const textarea = document.querySelector("textarea");
+        textarea.addEventListener("keyup", e => {
+            let scHeight = e.target.scrollHeight;
+            textarea.style.height = "63px";
+            textarea.style.height = `${scHeight}px`;
+        });  
+
+        // Add an event listener for the reset button
+        document.getElementById('resetBtn').addEventListener('click', function () {
+        // Reset the textarea
+        textarea.style.height = "63px";
+    });
+    </script>
+    <script src="/static/preloader.js"></script>
+</body>
+
+</html>
